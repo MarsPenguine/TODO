@@ -17,15 +17,25 @@ const EditableRow = ({ index, ...props }) => {
 };
 
 function TodoTable() {
+
+  /**
+   * @param props
+   * @returns It returns Context Provider structure using dataSource and setDataSource.
+   * @constructor
+   */
   const ModifiedDataSourceProvider = (props) => {
     return (
-      <EditableContext.Provider
-        value={[dataSource, setDataSource]}
-      >
+      <EditableContext.Provider value={[dataSource, setDataSource]}>
         {props.children}
       </EditableContext.Provider>
     );
   };
+
+  /**
+   * @param index: The button location from the list.
+   * @param isFinished: The state of the button.
+   * @returns It returns <FinishIcon> with Context Provider using dataSource and setDataSource.
+   */
   const getIcon = (index, isFinished) => {
     return (
       <ModifiedDataSourceProvider>
@@ -34,51 +44,107 @@ function TodoTable() {
     );
   };
 
+  /**
+   * Tasks data example
+   */
   let dataSourceInit = [
     {
-      key: "0",
-      title: "Edward King 0",
-      isFinished: false,
-    },
-    {
-      key: "1",
-      title: "Edward King 1",
-      isFinished: true,
-    },
-  ];
-
-  let initialization = [
-    {
       key: 0,
-      title: "Edward King 0",
+      title: "Dear friend ",
       isFinished: false,
-      buttonIcon: getIcon(0, false),
     },
     {
       key: 1,
-      title: "Edward King 1",
+      title: "I'm Bill :)",
       isFinished: true,
-      buttonIcon: getIcon(1, true),
     },
   ];
-  const [modifiedDataSource, setModifiedDataSource] = useState(initialization);
-  const [dataSource, setDataSource] = useState(JSON.parse(localStorage.getItem("data_source")) ||dataSourceInit);
-  useEffect(() => {
-    console.log(modifiedDataSource);
-  }, [modifiedDataSource]);
 
+  /**
+   * @dataSource: the original data set for tasks.
+   *
+   * @Param key: task track key.
+   * @Param title: task title or description
+   * @Param isFinished: whether this task is finished
+   */
+  const [dataSource, setDataSource] = useState(
+      JSON.parse(localStorage.getItem("data_source")) || dataSourceInit
+  );
+
+  /**
+   * @modifiedDataSource: It will change along with dataSource. modifiedDataSource has the
+   * elements presented in <Table>.
+   *
+   * @Param key: task track key.
+   * @Param title: task title or description.
+   * @Param isFinished: whether this task is finished.
+   * @Param buttonIcon: the ✔ button component with <FinishIcon />.
+   *
+   * Other than @buttonIcon, the rest of the params should be the same as dataSource has.
+   */
+  const [modifiedDataSource, setModifiedDataSource] = useState();
+
+  /**
+   * Add ✔ button in modifiedDataSource and store data in Local Storage
+   */
   useEffect(() => {
     const newData = dataSource;
     newData.map((row, index) => {
       row.buttonIcon = getIcon(index, row.isFinished);
     });
     setModifiedDataSource(newData);
-    localStorage.setItem("data_source",JSON.stringify(dataSource));
+    localStorage.setItem("data_source", JSON.stringify(dataSource));
   }, [dataSource]);
 
   const [count, setCount] = useState(2);
   const [editable, setEditable] = useState(false);
-  const columns = [
+
+  /**
+   * Handle delete action
+   */
+  const handleDelete = (key) => {
+    setDataSource(dataSource.filter((item) => item.key !== key));
+  };
+
+
+  /**
+   * Handle add action
+   */
+  const handleAdd = () => {
+    const newData = {
+      key: count,
+      title: "New Task",
+      isFinished: false,
+    };
+    setCount(count + 1);
+    setDataSource([...dataSource, newData]);
+  };
+
+  /**
+   * EditableCell handleSave config
+   */
+  const handleSave = (row) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, { ...item, ...row });
+    setDataSource(newData);
+  };
+
+  /**
+   * Table components config
+   */
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  /**
+   * Table columns config
+   */
+  const columnsConfig = [
     {
       title: "To Do",
       dataIndex: "title",
@@ -90,50 +156,27 @@ function TodoTable() {
     },
     {
       dataIndex: "operation",
+      /**
+       * @param text
+       * @param record
+       * @returns Here renders the delete pop up window.
+       */
       render: (text, record) =>
-        editable && modifiedDataSource.length >= 1 ? (
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <a>Delete</a>
-          </Popconfirm>
-        ) : null,
+          editable && modifiedDataSource.length >= 1 ? (
+              <Popconfirm
+                  title="Sure to delete?"
+                  onConfirm={() => handleDelete(record.key)}
+              >
+                <a>Delete</a>
+              </Popconfirm>
+          ) : null,
     },
   ];
 
-  const handleDelete = (key) => {
-    setDataSource(
-      dataSource.filter((item) => item.key !== key)
-    );
-  };
-
-  const handleAdd = () => {
-    const newData = {
-      key: count,
-      title: `test ${count}`,
-      isFinished: false,
-    };
-    setCount(count + 1);
-    setDataSource([...dataSource, newData]);
-  };
-
-  const handleSave = (row) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, { ...item, ...row });
-    setDataSource(newData);
-  };
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columnsMapping = columns.map((col) => {
+  /**
+   * Table columns processed config
+   */
+  const processedColumnsConfig = columnsConfig.map((col) => {
     if (!col.editable) {
       return col;
     }
@@ -152,28 +195,17 @@ function TodoTable() {
   return (
     <div style={{ margin: "auto", width: "70%" }}>
       <div className={"buttons"}>
-        <Button
-          onClick={handleAdd}
-          type="primary"
-          style={{
-            marginBottom: 16,
-            float: "left",
-            zIndex: 1,
-          }}
-        >
+        <Button className={"button-add"} onClick={handleAdd} type="primary">
           Add
         </Button>
 
         <Button
-          className={"edit"}
+          className={"button-edit"}
           onClick={() => {
             setEditable(!editable);
           }}
           type="primary"
           style={{
-            marginBottom: 16,
-            float: "right",
-            zIndex: 1,
             backgroundColor: editable ? "#eba10c" : "#1890ff",
           }}
         >
@@ -186,7 +218,7 @@ function TodoTable() {
         rowClassName={() => "editable-row"}
         bordered
         dataSource={modifiedDataSource}
-        columns={columnsMapping}
+        columns={processedColumnsConfig}
       />
     </div>
   );

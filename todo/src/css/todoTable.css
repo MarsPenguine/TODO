@@ -19,4 +19,23 @@
 
 .buttons {
   width: 118px;
+  margin-top: 20px;
+}
+
+.button-add{
+  margin-bottom: 16px;
+  float: right;
+  z-index: 1;
+}
+
+.button-add{
+  margin-bottom: 16px;
+  float: left;
+  z-index: 1;
+}
+
+.button-edit{
+  margin-bottom: 16px;
+  float: right;
+  z-index: 1;
 }
