@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EditableTable from "./editableTable";
+import TodoTable from "./todoTable";
 import 'antd/dist/antd.css';
 
-ReactDOM.render(<EditableTable />, document.getElementById("root"));
+ReactDOM.render(<TodoTable />, document.getElementById("root"));
