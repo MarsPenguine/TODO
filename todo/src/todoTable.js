@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Popconfirm, Form } from "antd";
-import "./todoTable.css";
+import "./css/todoTable.css";
 import { EditableCell } from "./editableCell";
 import { EditableContext } from "./editableContext";
 import { FinishIcon } from "./finishIcon";
@@ -62,23 +62,22 @@ function TodoTable() {
     },
   ];
   const [modifiedDataSource, setModifiedDataSource] = useState(initialization);
-  const [dataSource, setDataSource] = useState(dataSourceInit);
-
+  const [dataSource, setDataSource] = useState(JSON.parse(localStorage.getItem("data_source")) ||dataSourceInit);
   useEffect(() => {
     console.log(modifiedDataSource);
   }, [modifiedDataSource]);
 
   useEffect(() => {
-    console.log(dataSource);
     const newData = dataSource;
     newData.map((row, index) => {
       row.buttonIcon = getIcon(index, row.isFinished);
     });
     setModifiedDataSource(newData);
+    localStorage.setItem("data_source",JSON.stringify(dataSource));
   }, [dataSource]);
 
   const [count, setCount] = useState(2);
-  const [editable, setEditable] = useState(true);
+  const [editable, setEditable] = useState(false);
   const columns = [
     {
       title: "To Do",
@@ -88,14 +87,6 @@ function TodoTable() {
     },
     {
       dataIndex: "buttonIcon",
-      //   render: (text, record) => (
-      //     <ModifiedDataSourceProvider>
-      //       <FinishIcon
-      //         index={record.key}
-      //         isFinished={modifiedDataSource[record.key].isFinished}
-      //       />
-      //     </ModifiedDataSourceProvider>
-      //   ),
     },
     {
       dataIndex: "operation",

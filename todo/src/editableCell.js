@@ -1,7 +1,7 @@
 
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { Input, Form } from "antd";
-import "./todoTable.css";
+import "./css/todoTable.css";
 import {EditableContext} from "./editableContext";
 
 
