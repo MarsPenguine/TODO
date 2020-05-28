@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Popconfirm, Form } from "antd";
-import "./css/todoTable.css";
+import "./public/css/todoTable.css";
 import { EditableCell } from "./editableCell";
 import { EditableContext } from "./editableContext";
 import { FinishIcon } from "./finishIcon";
